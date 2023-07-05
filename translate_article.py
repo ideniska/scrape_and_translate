@@ -13,19 +13,31 @@ def translate_and_save(title, file_path):
     with open(file_path, "r") as file:
         article_content = file.read()
 
-    response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=f"Translate this into Russian:\n\n{article_content}\n\n1.",
-        temperature=0.3,
-        max_tokens=100,
-        top_p=1.0,
-        frequency_penalty=0.0,
-        presence_penalty=0.0,
+    # response = openai.Completion.create(
+    #     model="text-davinci-003",
+    #     prompt=f"Translate this into Russian:\n\n{article_content}\n\n1.",
+    #     temperature=0.3,
+    #     max_tokens=100,
+    #     top_p=1.0,
+    #     frequency_penalty=0.0,
+    #     presence_penalty=0.0,
+    # )
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {
+                "role": "user",
+                "content": f"Translate this into Russian: {article_content}",
+            },
+        ],
     )
+
+    # translated_article = response["choices"][0]["text"]
+    translated_article = response["choices"][0]["message"]["content"]
     output_directory = "translated"
     os.makedirs(output_directory, exist_ok=True)
     output_path = os.path.join(output_directory, f"{title}.txt")
-    translated_article = response["choices"][0]["text"]
     print(f"{translated_article=}")
 
     with open(output_path, "w") as file:
